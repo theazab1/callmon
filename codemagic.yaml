@@ -1,0 +1,29 @@
+workflows:
+  android-workflow:
+    name: Call Monitor Android Build
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    environment:
+      groups:
+        - keystore_credentials   # هتضيفها من Codemagic UI - شرح تحت
+      vars:
+        PACKAGE_NAME: "com.clinic.callmonitor"
+      java: 17
+    scripts:
+      - name: Generate Gradle wrapper (المشروع بيتوصل بدون ملفات gradlew الثنائية)
+        script: |
+          cd $CM_BUILD_DIR
+          gradle wrapper --gradle-version 8.4
+      - name: Build debug APK (for easy testing without Keystore)
+        script: |
+          cd $CM_BUILD_DIR
+          ./gradlew assembleDebug
+    artifacts:
+      - app/build/outputs/apk/debug/*.apk
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
+        notify:
+          success: true
+          failure: true
